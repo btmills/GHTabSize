@@ -1,0 +1,11 @@
+{
+	"name": "GHTabSize",
+	"description": "Set custom syntax-specific tab widths on GitHub.",
+	"version": "0.0.1",
+	"manifest_version": 2,
+	"permissions": [],
+	"content_scripts": [{
+		"matches": ["*://*.github.com/*"],
+		"js": ["lib/jquery.js", "lib/ghtabsize.js"]
+	}]
+}
