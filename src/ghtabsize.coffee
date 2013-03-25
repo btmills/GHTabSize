@@ -1,3 +1,7 @@
+filetype = (file) ->
+	el = file.find '.data'
+	filetype = el.get(0).className.match(/type-([_a-zA-Z0-9-]+)/)[1]
+
 files = $ '#files .file'
 for file in files
 	file = $ file
