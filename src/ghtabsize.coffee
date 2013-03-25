@@ -1,11 +1,22 @@
+typeNames =
+	c: 'C/C++/C#'
+	css: 'CSS'
+	coffeescript: 'CoffeeScript'
+	javascript: 'JavaScript'
+	json: 'JSON'
+	less: 'LESS'
+	'objective-c': 'Objective-C'
+	text: 'Plain Text'
+
 filetype = (file) ->
-	el = file.find '.data'
-	filetype = el.get(0).className.match(/type-([_a-zA-Z0-9-]+)/)[1]
+	el = file.children('div')
+	console.dir el
+	el.get(1).className.match(/type-([_a-zA-Z0-9-]+)/)[1]
 
 files = $ '#files .file'
 for file in files
 	file = $ file
-	filetype = 'JSON'
+	type = filetype file
 	chooser = $ """
 	<div class="select-menu js-menu-container js-select-menu js-period-container"
 		style="line-height: 33px; float: right; margin-right: 8px;">
@@ -17,7 +28,7 @@ for file in files
 			style="line-height: 1.4">
 			<div class="select-menu-modal">
 				<div class="select-menu-header">
-					<span class="select-menu-title">Tab size (#{filetype})</span>
+					<span class="select-menu-title">Tab size (#{typeNames[type] || type})</span>
 					<span class="mini-icon mini-icon-remove-close js-menu-close"></span>
 				</div>
 				<div class="select-menu-list">
