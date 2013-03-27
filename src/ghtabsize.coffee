@@ -20,9 +20,12 @@ filetype = (file) ->
 	match = str.match(/type-([_a-zA-Z0-9-]+)/)
 	if match.length > 1 then match[1] else false
 
+changed = (type, indent, file) ->
+	file.css 'tab-size', indent.toString()
+
 
 # Create the indent menu
-menu = (type) ->
+menu = (type, selection) ->
 	$('<div>')
 	.addClass('select-menu')
 	.addClass('js-menu-container')
@@ -42,7 +45,7 @@ menu = (type) ->
 		).append(
 			$('<span>')
 			.addClass('js-select-button')
-			.text('4')
+			.text(selection)
 		)
 	).append(
 		$('<div>')
@@ -74,10 +77,13 @@ menu = (type) ->
 					.addClass('select-menu-item')
 					.addClass('js-navigation-item')
 					.addClass('js-navigation-target')
+					.addClass(if indent == +selection then 'selected' else '')
 					.on(
 						mouseenter: -> $(this).addClass 'navigation-focus'
 						mouseleave: -> $(this).removeClass 'navigation-focus'
 						click: ->
+							changed type, indent, $(this).closest('.file')
+
 							btn = $(this)
 							.closest('.select-menu-modal-holder')
 							.find('.js-menu-close')
@@ -113,7 +119,7 @@ load = (files) ->
 	for file in ($ file for file in files)
 		type = filetype file
 		continue unless type
-		file.find('.meta').append menu type
+		file.find('.meta').append menu type, file.css 'tab-size'
 
 
 load $ '#files .file'
