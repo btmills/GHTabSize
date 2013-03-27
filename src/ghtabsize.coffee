@@ -1,3 +1,5 @@
+storage = {}
+
 # Given a type string, get the match syntax name
 nameFromType = (type) ->
 	names =
@@ -20,8 +22,12 @@ filetype = (file) ->
 	match = str.match(/type-([_a-zA-Z0-9-]+)/)
 	if match.length > 1 then match[1] else false
 
+
 changed = (type, indent, file) ->
+	chrome.storage.sync.set
 	file.css 'tab-size', indent.toString()
+	storage[type] = +indent
+	chrome.storage.sync.set storage
 
 
 # Create the indent menu
@@ -116,10 +122,14 @@ menu = (type, selection) ->
 
 
 load = (files) ->
-	for file in ($ file for file in files)
-		type = filetype file
-		continue unless type
-		file.find('.meta').append menu type, file.css 'tab-size'
+	chrome.storage.sync.get (keys) ->
+		storage = keys
+		for file in ($ file for file in files)
+			type = filetype file
+			continue unless type
+			file.find('.meta').append menu type, storage[type] || 8
+			file.css 'tab-size', (storage[type] || 8).toString()
+
 
 
 load $ '#files .file'
