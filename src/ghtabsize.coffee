@@ -21,6 +21,7 @@ filetype = (file) ->
 	if match.length > 1 then match[1] else false
 
 
+# Create the indent menu
 menu = (type) ->
 	$('<div>')
 	.addClass('select-menu')
@@ -37,11 +38,11 @@ menu = (type) ->
 		.addClass('js-menu-target')
 		.append(
 			$('<i>')
-			.text('indent size:')
+			.text('indent size: ')
 		).append(
 			$('<span>')
 			.addClass('js-select-button')
-			.text(' 4')
+			.text('4')
 		)
 	).append(
 		$('<div>')
@@ -68,12 +69,22 @@ menu = (type) ->
 			).append(
 				$('<div>')
 				.addClass('select-menu-list')
-				.append((
+				.append(((((indent) ->
 					$('<div>')
 					.addClass('select-menu-item')
 					.addClass('js-navigation-item')
 					.addClass('js-navigation-target')
-					.append(
+					.on(
+						mouseenter: -> $(this).addClass 'navigation-focus'
+						mouseleave: -> $(this).removeClass 'navigation-focus'
+						click: ->
+							btn = $(this)
+							.closest('.select-menu-modal-holder')
+							.find('.js-menu-close')
+							window.setTimeout ->
+								btn.click()
+							, 0
+					).append(
 						$('<input>')
 						.attr(
 							id: "tabsize_#{indent}"
@@ -90,7 +101,8 @@ menu = (type) ->
 						.addClass('select-menu-item-text')
 						.addClass('js-select-button-text')
 						.text(indent)
-					) for indent in [2, 4, 8])
+					)
+					)(i)) for i in [2, 4, 8])
 				)
 			)
 		)
@@ -101,13 +113,7 @@ load = (files) ->
 	for file in ($ file for file in files)
 		type = filetype file
 		continue unless type
-		chooser = menu type
-		chooser.find('.select-menu-item').on('mouseenter', (event) ->
-			$(this).addClass 'navigation-focus'
-		).on('mouseleave', (event) ->
-			$(this).removeClass 'navigation-focus'
-		)
+		file.find('.meta').append menu type
 
-		chooser.appendTo file.find '.meta'
 
 load $ '#files .file'
