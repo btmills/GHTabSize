@@ -1,61 +1,113 @@
-typeNames =
-	c: 'C/C++/C#'
-	css: 'CSS'
-	coffeescript: 'CoffeeScript'
-	javascript: 'JavaScript'
-	json: 'JSON'
-	less: 'LESS'
-	'objective-c': 'Objective-C'
-	text: 'Plain Text'
+# Given a type string, get the match syntax name
+nameFromType = (type) ->
+	names =
+		c: 'C/C++/C#'
+		css: 'CSS'
+		coffeescript: 'CoffeeScript'
+		javascript: 'JavaScript'
+		json: 'JSON'
+		less: 'LESS'
+		makefile: 'Makefile'
+		'objective-c': 'Objective-C'
+		ruby: 'Ruby'
+		text: 'Plain Text'
+	names[type] || type
 
+
+# Given a .file DOM node, find out what type of code it contains
 filetype = (file) ->
-	el = file.children('div')
-	console.dir el
-	el.get(1).className.match(/type-([_a-zA-Z0-9-]+)/)[1]
+	str = file.children('div').get(1).className
+	match = str.match(/type-([_a-zA-Z0-9-]+)/)
+	if match.length > 1 then match[1] else false
 
-files = $ '#files .file'
-for file in files
-	file = $ file
-	type = filetype file
-	chooser = $ """
-	<div class="select-menu js-menu-container js-select-menu js-period-container"
-		style="line-height: 33px; float: right; margin-right: 8px;">
-		<span class="minibutton select-menu-button js-menu-target">
-			<i>Tab size:</i>
-			<span class="js-select-button"> 4</span>
-		</span>
-		<div class="select-menu-modal-holder js-menu-content js-navigation-container"
-			style="line-height: 1.4">
-			<div class="select-menu-modal">
-				<div class="select-menu-header">
-					<span class="select-menu-title">Tab size (#{typeNames[type] || type})</span>
-					<span class="mini-icon mini-icon-remove-close js-menu-close"></span>
-				</div>
-				<div class="select-menu-list">
-					<div class="select-menu-item js-navigation-item js-navigation-target">
-						<input id="tabsize_2" name="tabsize" type="radio" value="2" />
-						<span class="select-menu-item-icon mini-icon mini-icon-confirm"></span>
-						<div class="select-menu-item-text js-select-button-text">2</div>
-					</div>
-					<div class="select-menu-item js-navigation-item js-navigation-target selected">
-						<input id="tabsize_4" name="tabsize" type="radio" value="4" />
-						<span class="select-menu-item-icon mini-icon mini-icon-confirm"></span>
-						<div class="select-menu-item-text js-select-button-text">4</div>
-					</div>
-					<div class="select-menu-item js-navigation-item js-navigation-target">
-						<input id="tabsize_8" name="tabsize" type="radio" value="8" />
-						<span class="select-menu-item-icon mini-icon mini-icon-confirm"></span>
-						<div class="select-menu-item-text js-select-button-text">8</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	"""
-	chooser.find('.select-menu-item').on('mouseenter', (event) ->
-		$(this).addClass 'navigation-focus'
-	).on('mouseleave', (event) ->
-		$(this).removeClass 'navigation-focus'
+
+menu = (type) ->
+	$('<div>')
+	.addClass('select-menu')
+	.addClass('js-menu-container')
+	.addClass('js-select-menu')
+	.addClass('js-period-container')
+	.css('line-height', '33px')
+	.css('float', 'right')
+	.css('margin-right', '8px')
+	.append(
+		$('<span>')
+		.addClass('minibutton')
+		.addClass('select-menu-button')
+		.addClass('js-menu-target')
+		.append(
+			$('<i>')
+			.text('indent size:')
+		).append(
+			$('<span>')
+			.addClass('js-select-button')
+			.text(' 4')
+		)
+	).append(
+		$('<div>')
+		.addClass('select-menu-modal-holder')
+		.addClass('js-menu-content')
+		.addClass('js-navigation-container')
+		.css('line-height', '1.4')
+		.append(
+			$('<div>')
+			.addClass('select-menu-modal')
+			.append(
+				$('<div>')
+				.addClass('select-menu-header')
+				.append(
+					$('<span>')
+					.addClass('select-menu-title')
+					.text("Select Indentation Size (#{nameFromType type})")
+				).append(
+					$('<span>')
+					.addClass('mini-icon')
+					.addClass('mini-icon-remove-close')
+					.addClass('js-menu-close')
+				)
+			).append(
+				$('<div>')
+				.addClass('select-menu-list')
+				.append((
+					$('<div>')
+					.addClass('select-menu-item')
+					.addClass('js-navigation-item')
+					.addClass('js-navigation-target')
+					.append(
+						$('<input>')
+						.attr(
+							id: "tabsize_#{indent}"
+							name: 'tabsize'
+							type: 'radio'
+						).val(indent)
+					).append(
+						$('<span>')
+						.addClass('select-menu-item-icon')
+						.addClass('mini-icon')
+						.addClass('mini-icon-confirm')
+					).append(
+						$('<div>')
+						.addClass('select-menu-item-text')
+						.addClass('js-select-button-text')
+						.text(indent)
+					) for indent in [2, 4, 8])
+				)
+			)
+		)
 	)
 
-	chooser.appendTo file.find '.meta'
+
+load = (files) ->
+	for file in ($ file for file in files)
+		type = filetype file
+		continue unless type
+		chooser = menu type
+		chooser.find('.select-menu-item').on('mouseenter', (event) ->
+			$(this).addClass 'navigation-focus'
+		).on('mouseleave', (event) ->
+			$(this).removeClass 'navigation-focus'
+		)
+
+		chooser.appendTo file.find '.meta'
+
+load $ '#files .file'
