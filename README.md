@@ -6,3 +6,7 @@ I like four spaces. You might like two. GitHub uses eight. GHTabSize is a Chrome
 
 - It only runs on page load. Clicking on a file from a directory listing doesn't reload the page, so right know you have to hit refresh. This will be fixed soon.
 - There really needs to be a settings page. Working on it.
+
+## License
+
+The MIT License. See LICENSE for full text.
